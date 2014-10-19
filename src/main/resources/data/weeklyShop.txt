@@ -1,0 +1,5 @@
+# Shopping list
+# Format: amount|Item name
+# Lines beginning with # are ignored
+1|Sainsbury's Wholegrain Apricot Wheats 500g
+6|Sainsbury's Loose Fairtrade Bananas
