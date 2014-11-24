@@ -48,10 +48,7 @@ public class WeeklyShop {
      * Login to the shopping site
      */
     private void login() {
-        driver.get("https://www.sainsburys.co.uk/");
-        
-        WebElement groceries = driver.findElement(By.id("menu2"));
-        groceries.click();
+        driver.get("http://www.sainsburys.co.uk/shop/gb/groceries");
         
         WebElement username = driver.findElement(By.id("logonId"));
         username.sendKeys(config.getUsername());
@@ -67,7 +64,14 @@ public class WeeklyShop {
      * Reset the contents of the basket (if any)
      */
     private void emptyBasket() {
-        driver.findElement(By.id("emptyTrolleyLink")).click();
+        
+        WebElement emptyTrolleyLink = getEmptyTrollyLink();
+        if(emptyTrolleyLink == null) {
+            //Trolly is empty
+            return;
+        }
+        
+        emptyTrolleyLink.click();
         
         //Confirm empty
         List<WebElement> buttons = driver.findElements(By.className("button"));
@@ -76,6 +80,15 @@ public class WeeklyShop {
                 button.click();
                 return;
             }
+        }
+    }
+
+    private WebElement getEmptyTrollyLink() {
+        try {
+            return driver.findElement(By.id("emptyTrolleyLink"));
+        }
+        catch(Exception e) {
+            return null;
         }
     }
 
