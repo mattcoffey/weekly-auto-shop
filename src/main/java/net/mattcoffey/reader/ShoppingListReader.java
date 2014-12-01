@@ -40,7 +40,7 @@ public class ShoppingListReader {
         try {
             while((line = reader.readLine()) != null) {
                 ShoppingListItem item = parseLine(line);
-                if (item != null) {
+                if (item != null && item.getAmount() != 0) {
                     shoppingList.add(item);
                 }
             }

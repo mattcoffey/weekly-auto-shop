@@ -41,7 +41,7 @@ public class WeeklyShop {
         
         addItemsToBasket(items);
         
-        driver.close();        
+        System.out.println("Choose delivery slot, input payment details and confirm");
     }
     
     /**
@@ -128,6 +128,7 @@ public class WeeklyShop {
                 
                 WebElement add = product.findElement(By.name("Add"));
                 add.click();
+                System.out.println("Added " + item);
             }
         }
     }
