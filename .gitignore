@@ -10,3 +10,5 @@ target
 .classpath
 .project
 .settings
+
+src/main/resources/data/weeklyShop.txt.cpy
