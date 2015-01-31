@@ -7,6 +7,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.mattcoffey.config.Config;
 import net.mattcoffey.reader.ShoppingListReader;
@@ -17,6 +19,8 @@ import net.mattcoffey.reader.ShoppingListReader;
  * @author mcoffey
  */
 public class WeeklyShop {
+    
+    private static final Logger logger = LoggerFactory.getLogger(WeeklyShop.class);
     
     /**
      * The project configuration
@@ -33,7 +37,8 @@ public class WeeklyShop {
      * @throws IOException 
      */
     public void doShop() throws IOException {
-        List<ShoppingListItem> items = new ShoppingListReader(config).readShoppingList();
+        
+        List<ShoppingListItem> items = readShoppingList();
         
         login();
         
@@ -41,13 +46,19 @@ public class WeeklyShop {
         
         addItemsToBasket(items);
         
-        System.out.println("Choose delivery slot, input payment details and confirm");
+        logger.info("Choose delivery slot, input payment details and confirm");
+    }
+
+    private List<ShoppingListItem> readShoppingList() throws IOException {
+        logger.info("Read Shopping List");
+        return new ShoppingListReader(config).readShoppingList();
     }
     
     /**
      * Login to the shopping site
      */
     private void login() {
+        logger.info("Logging in");
         driver.get("http://www.sainsburys.co.uk/shop/gb/groceries");
         
         WebElement username = driver.findElement(By.id("logonId"));
@@ -64,6 +75,7 @@ public class WeeklyShop {
      * Reset the contents of the basket (if any)
      */
     private void emptyBasket() {
+        logger.info("Empty the previous shopping basket");
         
         WebElement emptyTrolleyLink = getEmptyTrollyLink();
         if(emptyTrolleyLink == null) {
@@ -97,6 +109,7 @@ public class WeeklyShop {
      * @param items
      */
     private void addItemsToBasket(List<ShoppingListItem> items) {
+        logger.info("Add Items to basket");
         for(ShoppingListItem item : items) {
             
             WebElement search = driver.findElement(By.id("search"));
@@ -119,20 +132,50 @@ public class WeeklyShop {
      * @param driver
      */
     private void addItemToBasket(ShoppingListItem item, WebDriver driver) {
-        WebElement productLister = driver.findElement(By.id("productLister"));
-        for(WebElement product : productLister.findElements(By.className("product"))) {
-            if(containsItem(product, item.getItemName())) {
-                WebElement quantity = product.findElement(By.name("quantity"));
-                quantity.clear();
-                quantity.sendKeys(item.getAmount().toString());
-                
-                WebElement add = product.findElement(By.name("Add"));
-                add.click();
-                System.out.println("Added " + item);
+        
+        try {
+            WebElement product = findProductFromResults(item, driver);
+            if (product == null) {
+                handleAddItemError(item, null);
+                return;
             }
+            addItemToBasket(item, product);
+            
+        } catch(Exception e) {
+            handleAddItemError(item, e);
         }
     }
 
+
+    private WebElement findProductFromResults(ShoppingListItem item, WebDriver driver) {
+        WebElement productLister = driver.findElement(By.id("productLister"));
+            for(WebElement product : productLister.findElements(By.className("product"))) {
+                if(containsItem(product, item.getItemName())) {
+                    return product;
+                }
+            }
+        
+        return null;
+    }
+
+    private void addItemToBasket(ShoppingListItem item, WebElement product) {
+        WebElement quantity = product.findElement(By.name("quantity"));
+        quantity.clear();
+        quantity.sendKeys(item.getAmount().toString());
+         
+        WebElement add = product.findElement(By.name("Add"));
+        add.click();
+        logger.info("Added {}", item);
+    }
+
+    /**
+     * @param item
+     * @param e the error or null
+     */
+    private void handleAddItemError(ShoppingListItem item, Exception e) {
+        logger.error("Error adding item: {}", item, e);
+    }
+    
     /**
      * @param product
      * @param itemName
@@ -141,7 +184,7 @@ public class WeeklyShop {
     private boolean containsItem(WebElement product, String itemName) {
         String productName = product.findElement(By.className("productNameAndPromotions")).findElement(By.tagName("h3")).getText();
         productName = stripCommas(productName);
-        return productName.contains(itemName);
+        return productName.contains(stripCommas(itemName));
     }
 
     /**
