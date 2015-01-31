@@ -20,6 +20,9 @@ import net.mattcoffey.reader.ShoppingListReader;
  */
 public class WeeklyShop {
     
+    /**
+     * logger
+     */
     private static final Logger logger = LoggerFactory.getLogger(WeeklyShop.class);
     
     /**
@@ -48,7 +51,11 @@ public class WeeklyShop {
         
         logger.info("Choose delivery slot, input payment details and confirm");
     }
-
+    
+    /**
+     * @return the list of items on the shopping list
+     * @throws IOException
+     */
     private List<ShoppingListItem> readShoppingList() throws IOException {
         logger.info("Read Shopping List");
         return new ShoppingListReader(config).readShoppingList();
@@ -95,11 +102,15 @@ public class WeeklyShop {
         }
     }
 
+    /**
+     * @return the link to empty the trolley
+     */
     private WebElement getEmptyTrollyLink() {
         try {
             return driver.findElement(By.id("emptyTrolleyLink"));
         }
         catch(Exception e) {
+            // trolley is empty
             return null;
         }
     }
@@ -146,18 +157,27 @@ public class WeeklyShop {
         }
     }
 
-
+    /**
+     * @param item
+     * @param driver
+     * @return the product in the list of results or null if not present
+     */
     private WebElement findProductFromResults(ShoppingListItem item, WebDriver driver) {
         WebElement productLister = driver.findElement(By.id("productLister"));
-            for(WebElement product : productLister.findElements(By.className("product"))) {
-                if(containsItem(product, item.getItemName())) {
-                    return product;
-                }
+        for(WebElement product : productLister.findElements(By.className("product"))) {
+            if(containsItem(product, item.getItemName())) {
+                return product;
             }
+        }
         
         return null;
     }
 
+    /**
+     * add the item to the basket
+     * @param item
+     * @param product
+     */
     private void addItemToBasket(ShoppingListItem item, WebElement product) {
         WebElement quantity = product.findElement(By.name("quantity"));
         quantity.clear();
