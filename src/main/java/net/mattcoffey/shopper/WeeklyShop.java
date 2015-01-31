@@ -1,6 +1,8 @@
 package net.mattcoffey.shopper;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.openqa.selenium.By;
@@ -49,9 +51,71 @@ public class WeeklyShop {
         
         addItemsToBasket(items);
         
+        List<ShoppingListItem> missing = findItemsMissingFromBasket(items);
+        
+        printMissingItems(missing);
+        
         logger.info("Choose delivery slot, input payment details and confirm");
     }
     
+    /**
+     * @param missing
+     */
+    private void printMissingItems(List<ShoppingListItem> missing) {
+        for(ShoppingListItem item : missing) {
+            logger.error("Basket missing: {}", item);
+        }
+    }
+
+    /**
+     * @param itemsInShoppingList
+     * @return items missing from the basket
+     */
+    private List<ShoppingListItem> findItemsMissingFromBasket(List<ShoppingListItem> itemsInShoppingList) {
+        //TODO handle errors e.g. number format exception
+        logger.info("Checking for items missing from the basket");
+        
+        WebElement fullTrollyView = driver.findElement(By.className("callToAction"));
+        fullTrollyView.click();
+        
+        List<ShoppingListItem> itemsInBasket = getItemsInBasket();
+        List<ShoppingListItem> itemsMissingFromBasket = new ArrayList<>();
+        
+        for(ShoppingListItem itemInShoppingList : itemsInShoppingList) {
+            if(!itemsInBasket.contains(itemInShoppingList)) {
+                itemsMissingFromBasket.add(itemInShoppingList);
+            }
+        }
+        
+        return itemsMissingFromBasket;
+    }
+
+    /**
+     * @return the items in the basket
+     */
+    private List<ShoppingListItem> getItemsInBasket() {
+        List<ShoppingListItem> itemsInBasket = new ArrayList<>();
+        List<WebElement> itemNamesInBasket = driver.findElements(By.className("productContainer"));
+        Iterator<WebElement> itemAmountsInBasket = driver.findElements(By.className("inTrolley")).iterator();
+        
+        for(WebElement element : itemNamesInBasket) {
+            WebElement productElement = element.findElement(By.tagName("a"));
+            WebElement amountElement = itemAmountsInBasket.next();
+            ShoppingListItem item = new ShoppingListItem(stripCommas(productElement.getText()), extractAmount(amountElement));
+            itemsInBasket.add(item);
+        }
+        
+        return itemsInBasket;
+    }
+    
+    /**
+     * @param amountElement
+     * @return the amount
+     */
+    private int extractAmount(WebElement amountElement) {
+        return Integer.parseInt(amountElement.getText());
+    }
+
     /**
      * @return the list of items on the shopping list
      * @throws IOException
@@ -135,7 +199,6 @@ public class WeeklyShop {
         }
     }
 
-
     /**
      * Add an item to the shopping basket
      * 
@@ -146,15 +209,16 @@ public class WeeklyShop {
         
         try {
             WebElement product = findProductFromResults(item, driver);
-            if (product == null) {
-                handleAddItemError(item, null);
+            if (product != null) {
+                addItemToBasket(item, product);
                 return;
             }
-            addItemToBasket(item, product);
             
         } catch(Exception e) {
             handleAddItemError(item, e);
+            return;
         }
+        handleAddItemError(item, null);
     }
 
     /**
