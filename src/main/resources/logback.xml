@@ -7,9 +7,9 @@
         </encoder>
     </appender>
 
-    <logger name="net.mattcoffey.weekly-auto-shop" level="WARN"/>
+    <logger name="net.mattcoffey.weekly-auto-shop" level="INFO"/>
 
-    <root level="WARN">
+    <root level="INFO">
         <appender-ref ref="STDOUT" />
     </root>
 

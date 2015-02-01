@@ -257,7 +257,8 @@ public class WeeklyShop {
      * @param e the error or null
      */
     private void handleAddItemError(ShoppingListItem item, Exception e) {
-        logger.error("Error adding item: {}", item, e);
+        //stack traces not that interesting to the end user
+        logger.debug("Error adding item: {}", item, e);
     }
     
     /**

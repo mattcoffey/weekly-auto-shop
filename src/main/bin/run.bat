@@ -1,0 +1,1 @@
+java -cp .;weekly-auto-shop-jar-with-dependencies.jar net.mattcoffey.Main

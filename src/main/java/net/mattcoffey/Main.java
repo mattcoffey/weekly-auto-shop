@@ -1,12 +1,3 @@
-/*
- * Copyright (c) 2014 PEER 1 Network Enterprises, Inc. 
- * All rights reserved. 
- * No part of this program may be reproduced, translated or transmitted, 
- * in any form or by any means, electronic, mechanical, photocopying, 
- * recording or otherwise, or stored in any retrieval system of any nature, 
- * without written permission of the copyright holder.
- */
-
 package net.mattcoffey;
 
 import java.io.IOException;
