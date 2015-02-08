@@ -55,7 +55,7 @@ public class WeeklyShop {
         
         printMissingItems(missing);
         
-        logger.info("Choose delivery slot, input payment details and confirm");
+        checkout();
     }
     
     /**
@@ -178,6 +178,14 @@ public class WeeklyShop {
             return null;
         }
     }
+   
+    /**
+     * Checkout basket
+     */
+    private void checkout() {
+        driver.findElement(By.id("deliveryInfoPanel")).findElement(By.tagName("a")).click();
+        logger.info("Choose delivery slot, input payment details and confirm");
+    } 
 
     /**
      * Add the items in the shopping list to the basket
@@ -267,13 +275,13 @@ public class WeeklyShop {
      * @return true if the supplied product WebElement matches the itemName
      */
     private boolean containsItem(WebElement product, String itemName) {
-        String productName = product.findElement(By.className("productNameAndPromotions")).findElement(By.tagName("h3")).getText();
-        productName = stripCommas(productName);
-        return productName.contains(stripCommas(itemName));
+        String productName = stripCommas(product.findElement(By.className("productNameAndPromotions")).findElement(By.tagName("h3")).getText());
+        return productName.contains(itemName);
     }
 
     /**
-     * @param string 
+     * TODO refactor into helper class
+     * @param string
      * @return the string with commas removed
      */
     private String stripCommas(String string) {

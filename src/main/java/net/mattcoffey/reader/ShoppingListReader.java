@@ -89,7 +89,7 @@ public class ShoppingListReader {
             throw new IllegalArgumentException("Invalid amount: " + parts[0] + "for line " + line);
         }
         
-        return new ShoppingListItem(parts[1], amount);
+        return new ShoppingListItem(stripCommas(parts[1]), amount);
     }
 
     /**
@@ -101,6 +101,15 @@ public class ShoppingListReader {
             || line.isEmpty();
     }
 
+    /**
+     * TODO refactor into helper class
+     * @param string
+     * @return the string with the commas removed
+     */
+    private String stripCommas(String string) {
+        return string.trim().replace(",", "");
+    }
+    
     /**
      * @param line
      * @return true if the line is a comment
