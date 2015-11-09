@@ -2,7 +2,6 @@ package net.mattcoffey;
 
 import java.io.IOException;
 
-
 /**
  * @author mcoffey
  */
