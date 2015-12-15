@@ -49,4 +49,20 @@ public class Config {
     public CharSequence getUsername() {
         return properties.getProperty("username");
     }
+
+    /**
+     * @return the retry interval
+     */
+    public long getRetryInterval() {
+        return Long.parseLong(properties.getProperty("retryInterval"));
+    }
+
+    /**
+     * @return the maximum number of retries
+     */
+    public int getMaxRetries() {
+        return Integer.parseInt(properties.getProperty("maxRetries"));
+    }
+    
+    
 }

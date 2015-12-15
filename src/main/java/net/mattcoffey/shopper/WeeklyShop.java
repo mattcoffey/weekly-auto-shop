@@ -2,10 +2,8 @@ package net.mattcoffey.shopper;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -49,7 +47,7 @@ public class WeeklyShop {
         
         login();
         
-        deleteAllItems();
+        emptyBasket();
         
         addItemsToBasket(items);
         
@@ -60,28 +58,6 @@ public class WeeklyShop {
         checkout();
     }
     
-    /**
-     * Delete all items in the basket one by one.
-     * (Workaround for the empty trolley button not functioning)
-     */
-    private void deleteAllItems() {
-        // The whole table is reloaded by Ajax call whenever an item changes so it is necessary to get the list of items every time one is removed
-        while(true) {
-            try {
-                List<WebElement> elements = driver.findElements(By.cssSelector("a[class='repressive delete']"));
-                if(elements.isEmpty()) {
-                    //Trolley empty
-                    return;
-                }
-                elements.iterator().next().click();
-                driver.get(driver.getCurrentUrl());
-            }
-            catch (Exception e) {
-                logger.error("Error removing item from trolley:", e);
-            }
-        }
-    }
-
     /**
      * @param missing
      */
@@ -155,8 +131,8 @@ public class WeeklyShop {
     private void login() {
         logger.info("Logging in");
         driver.get("https://www.sainsburys.co.uk/webapp/wcs/stores/servlet/LogonView?catalogId=10122&langId=44&storeId=10151&krypto=gPjk3%2BzluQwvKX86bngreDpsD2PZbgo0k%2BK1QRr9ktf2LQnIbem8yOn9zO92uvtU47wuMM1Yd97g%0AwRxQ05ZbtOW1HNtDiSA68zyCVSw5uV9R9PLBIUgNcWdzfwJu76J6ROykfvF081ZfenNS8LhYE%2F01%0AbRVPm0jH87tBNFudtyc2ZyUb3GK0ST2YBKBCQsriu8fI7tQ9bMYDcTJGlUF2WVjvzFxupS6dU3wQ%0ANPDHhcCB%2FjyRsL3Tn9yV%2BlatV%2FmTIzOM8GyFfWO6NMxEEAs1KrGJ7kEXTA75%2BC5wAdALexl1DHvR%0AV6mpqjJL%2FP3upaHGkGuVtqtgGHdkntALwkqrb5ij2MBik0EBD%2FerGKB29gzlBNUnnRqAkoJ1%2Fhhj%0A53D4&ddkey=http:LogonView");
-        sleep(500L);
-        WebElement username = driver.findElement(By.name("logonId"));
+        
+        WebElement username = waitForElement(By.id("logonId"));
         username.sendKeys(config.getUsername());
         
         WebElement password = driver.findElement(By.name("logonPassword"));
@@ -167,38 +143,66 @@ public class WeeklyShop {
     }
 
     /**
+     * @param by the web element specifier
+     * @return a page element
+     * 
+     * Wait for an element on the page to be loaded
+     */
+    private WebElement waitForElement(By by) {
+        for(int retries = 0; retries < config.getMaxRetries(); retries++) {
+            try {
+                return driver.findElement(by);
+            }
+            catch(Exception e) {
+                sleep(config.getRetryInterval());
+            }
+        }
+        throw new RuntimeException("Unable to find element " + by + " after " + config.getMaxRetries() + " attempts.");
+    }
+    
+    
+
+    /**
+     * @param by the web element specifier
+     * @return some page elements
+     * 
+     * Wait for a some page elements to be loaded
+     */
+    private List<WebElement> waitForElements(By by) {
+        for(int retries = 0; retries < config.getMaxRetries(); retries++) {
+            try {
+                return driver.findElements(by);
+            }
+            catch(Exception e) {
+                sleep(config.getRetryInterval());
+            }
+        }
+        throw new RuntimeException("Unable to find elements " + by + " after " + config.getMaxRetries() + " attempts.");
+    }
+
+    /**
      * Reset the contents of the basket (if any)
      */
     private void emptyBasket() {
         logger.info("Empty the previous shopping basket");
         
-        WebElement emptyTrolleyLink = getEmptyTrollyLink();
-        if(emptyTrolleyLink == null) {
+        waitForElement(By.id("miniTrolley"));
+        
+        if(driver.getPageSource().contains("Your trolley is empty.")) {
             //Trolly is empty
             return;
         }
+
+        WebElement emptyTrolleyLink = waitForElement(By.id("emptyTrolleyLink"));
         
         emptyTrolleyLink.click();
         
         //Confirm empty
-        for(WebElement button : driver.findElements(By.className("button"))) {
+        for(WebElement button : waitForElements(By.className("button"))) {
             if(button.getText() != null && "Empty trolley".equals(button.getText().trim())) {
                 button.click();
                 return;
             }
-        }
-    }
-
-    /**
-     * @return the link to empty the trolley
-     */
-    private WebElement getEmptyTrollyLink() {
-        try {
-            return driver.findElement(By.id("emptyTrolleyLink"));
-        }
-        catch(Exception e) {
-            // trolley is empty
-            return null;
         }
     }
    
