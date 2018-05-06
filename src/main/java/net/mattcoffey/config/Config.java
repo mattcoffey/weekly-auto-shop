@@ -63,6 +63,13 @@ public class Config {
     public int getMaxRetries() {
         return Integer.parseInt(properties.getProperty("maxRetries"));
     }
+
+    /**
+     * @return the path to the firefox driver
+     */
+	public String getDriverPath() {
+		return properties.getProperty("webdriver.gecko.driver");
+	}
     
     
 }

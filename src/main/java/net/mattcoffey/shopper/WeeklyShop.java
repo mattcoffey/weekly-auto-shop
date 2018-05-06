@@ -35,7 +35,7 @@ public class WeeklyShop {
     /**
      * The browser driver
      */
-    private final WebDriver driver = new FirefoxDriver();
+    private final WebDriver driver = loadDriver();
 
     /**
      * Do the shop
@@ -58,7 +58,12 @@ public class WeeklyShop {
         checkout();
     }
     
-    /**
+    private WebDriver loadDriver() {
+    	System.setProperty("webdriver.gecko.driver", config.getDriverPath());
+		return new FirefoxDriver();
+	}
+
+	/**
      * @param missing
      */
     private void printMissingItems(List<ShoppingListItem> missing) {
@@ -130,7 +135,7 @@ public class WeeklyShop {
      */
     private void login() {
         logger.info("Logging in");
-        driver.get("https://www.sainsburys.co.uk/webapp/wcs/stores/servlet/LogonView?catalogId=10122&langId=44&storeId=10151&krypto=gPjk3%2BzluQwvKX86bngreDpsD2PZbgo0k%2BK1QRr9ktf2LQnIbem8yOn9zO92uvtU47wuMM1Yd97g%0AwRxQ05ZbtOW1HNtDiSA68zyCVSw5uV9R9PLBIUgNcWdzfwJu76J6ROykfvF081ZfenNS8LhYE%2F01%0AbRVPm0jH87tBNFudtyc2ZyUb3GK0ST2YBKBCQsriu8fI7tQ9bMYDcTJGlUF2WVjvzFxupS6dU3wQ%0ANPDHhcCB%2FjyRsL3Tn9yV%2BlatV%2FmTIzOM8GyFfWO6NMxEEAs1KrGJ7kEXTA75%2BC5wAdALexl1DHvR%0AV6mpqjJL%2FP3upaHGkGuVtqtgGHdkntALwkqrb5ij2MBik0EBD%2FerGKB29gzlBNUnnRqAkoJ1%2Fhhj%0A53D4&ddkey=http:LogonView");
+        driver.get("https://www.sainsburys.co.uk/shop/LogonView?catalogId=10123&logonCallerId=LogonButton&langId=44&storeId=10151&URL=https%3A%2F%2Fwww.sainsburys.co.uk%2Fshop%2FMyAccount%3FlangId%3D44%26storeId%3D10151");
         
         WebElement username = waitForElement(By.id("logonId"));
         username.sendKeys(config.getUsername());

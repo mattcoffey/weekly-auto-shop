@@ -5,4 +5,3 @@
 # Breakfast
 1|Sainsbury's Wholegrain Apricot Wheats 500g
 1|Alpro Soya Milk Alternative to Dairy 1L
-10|Internets

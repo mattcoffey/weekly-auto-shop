@@ -7,8 +7,9 @@ Setup
 
 1. Install Java https://java.com/en/download/
 2. Install Firefox https://www.mozilla.org/en-GB/firefox/new/
-3. Download the Weekly Auto Shop zip distribution from (TODO host releases somewhere)
-4. Unzip release into directory
+3. You need to download the Geckodriver executable and put it in the directory specified (see https://github.com/mozilla/geckodriver )
+4. Download the Weekly Auto Shop zip distribution from (TODO host releases somewhere)
+5. Unzip release into directory
 
 
 Configuration
